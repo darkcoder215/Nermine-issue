@@ -378,6 +378,13 @@ option{background:var(--s2);}
     <button class="save-btn" style="margin-top:12px;" onclick="saveGeneral()">حفظ ✓</button>
   </div>
 
+  <div class="sec-title">تصدير للـ Google Sheet</div>
+  <div class="card">
+    <div style="font-size:11px;color:var(--t3);margin-bottom:10px;">ينشئ أوراق منسقة في نفس الشيت (ملخص الفريق + ورقة لكل عضو)</div>
+    <button class="save-btn" onclick="exportFormatted()">📊 تصدير أوراق منسقة</button>
+    <div id="export-status" style="margin-top:8px;font-size:12px;text-align:center;min-height:18px;"></div>
+  </div>
+
   <div class="sec-title">النسخ الاحتياطي</div>
   <div class="card">
     <div class="srow" style="border-bottom:none;padding-bottom:6px;">
@@ -464,19 +471,21 @@ const MEMBER_COLORS = ['#7a9e84','#5888a8','#b07060','#6878b0','#909858','#a0785
 const MONTHS_2026   = [{k:'2026-03',l:'مارس'},{k:'2026-04',l:'أبريل'},{k:'2026-05',l:'مايو'},{k:'2026-06',l:'يونيو'},{k:'2026-07',l:'يوليو'},{k:'2026-08',l:'أغسطس'},{k:'2026-09',l:'سبتمبر'},{k:'2026-10',l:'أكتوبر'},{k:'2026-11',l:'نوفمبر'},{k:'2026-12',l:'ديسمبر'}];
 const STARS_LABELS  = ['','ضعيف جداً','ضعيف','مقبول','جيد','ممتاز'];
 
-let ST  = JSON.parse(localStorage.getItem('miq_v4')||'null') || JSON.parse(JSON.stringify(DEFAULT_STATE));
+let ST  = JSON.parse(JSON.stringify(DEFAULT_STATE));
 let sel = {member:'', period:'', crit:'', stars:0, type:'', repType:'weekly', repPeriod:''};
+let _saving = false;
 
-// migrate old string-members format
-if(ST.members.length && typeof ST.members[0]==='string'){
-  ST.members = ST.members.map(m=>({name:m,role:'mod'}));
+function persist(){
+  // Debounced save to Google Sheet
+  if(_saving) return;
+  _saving = true;
+  setTimeout(function(){
+    google.script.run
+      .withFailureHandler(function(err){ console.error('Save failed:', err); toast('⚠️ تعذر الحفظ'); })
+      .saveData(ST);
+    _saving = false;
+  }, 500);
 }
-// migrate old flat criteria
-if(ST.criteria && !ST.criteria.mod){
-  ST.criteria = JSON.parse(JSON.stringify(DEFAULT_STATE.criteria));
-}
-
-function persist(){ localStorage.setItem('miq_v4', JSON.stringify(ST)); }
 
 /* ══════════════════════════════════════════
    UTILS
@@ -869,10 +878,17 @@ function saveCriteria(role){
   persist(); toast('✓ تم حفظ معايير '+(role==='mod'?'المودريشن':role==='design'?'الجرافيك':'الفيديو')); renderSettings();
 }
 function saveGeneral(){ ST.teamName=document.getElementById('si-tname').value.trim()||'المخبر الاقتصادي'; persist(); toast('✓ تم الحفظ'); }
-function clearAll(){ if(confirm('سيتم مسح كل البيانات. هل أنت متأكد؟')){ localStorage.removeItem('miq_v4'); location.reload(); } }
+function clearAll(){
+  if(!confirm('سيتم مسح كل البيانات. هل أنت متأكد؟')) return;
+  ST=JSON.parse(JSON.stringify(DEFAULT_STATE));
+  google.script.run
+    .withSuccessHandler(function(){ location.reload(); })
+    .withFailureHandler(function(){ location.reload(); })
+    .saveData(ST);
+}
 
 /* ══════════════════════════════════════════
-   BACKUP
+   BACKUP & EXPORT
 ══════════════════════════════════════════ */
 function exportJSON(){
   const blob=new Blob([JSON.stringify(ST,null,2)],{type:'application/json'});
@@ -896,6 +912,17 @@ function importJSON(e){
     }catch(err){ toast('⚠️ خطأ في قراءة الملف'); }
   };
   reader.readAsText(file); e.target.value='';
+}
+function exportFormatted(){
+  const el=document.getElementById('export-status');
+  el.textContent='جاري التصدير…'; el.style.color='var(--gold2)';
+  google.script.run
+    .withSuccessHandler(function(r){
+      if(r&&r.success){ el.textContent='✓ تم التصدير — '+r.count+' ملاحظة'; el.style.color='var(--sage2)'; toast('✓ تم التصدير للشيت'); }
+      else { el.textContent='✗ '+(r&&r.error||'خطأ'); el.style.color='var(--red)'; }
+    })
+    .withFailureHandler(function(err){ el.textContent='✗ '+err.message; el.style.color='var(--red)'; })
+    .exportToSheets(ST);
 }
 
 /* ══════════════════════════════════════════
@@ -1025,9 +1052,33 @@ function downloadReportCSV(){
 }
 
 /* ══════════════════════════════════════════
-   INIT
+   INIT — Load data from Google Sheet
 ══════════════════════════════════════════ */
-renderRecord();
+(function(){
+  // Show loading state
+  document.getElementById('team-snap').innerHTML='<div style="text-align:center;padding:30px;color:var(--t3);font-size:13px;">جاري التحميل…</div>';
+  google.script.run
+    .withSuccessHandler(function(data){
+      if(data && data.members && data.criteria){
+        ST=data;
+        // migrate old formats
+        if(ST.members.length && typeof ST.members[0]==='string'){
+          ST.members=ST.members.map(function(m){return {name:m,role:'mod'};});
+        }
+        if(ST.criteria && !ST.criteria.mod){
+          ST.criteria=JSON.parse(JSON.stringify(DEFAULT_STATE.criteria));
+        }
+        if(!ST.notes) ST.notes=[];
+      }
+      renderRecord();
+    })
+    .withFailureHandler(function(err){
+      console.error('Load failed:', err);
+      toast('⚠️ تعذر تحميل البيانات — يتم استخدام البيانات الافتراضية');
+      renderRecord();
+    })
+    .getData();
+})();
 </script>
 </body>
 </html>

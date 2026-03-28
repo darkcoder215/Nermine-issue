@@ -325,6 +325,10 @@ option{background:var(--s2);}
     </select>
     <select class="sel" id="fn-month" onchange="renderNotes()" style="max-width:120px;"></select>
   </div>
+  <div style="display:flex;gap:6px;margin-bottom:10px;">
+    <button class="export-btn" style="flex:1;margin-bottom:0;" onclick="copyNotesForExcel()"><span>📊</span><span>نسخ جدول Excel</span></button>
+    <button class="export-btn" style="flex:1;margin-bottom:0;" onclick="downloadNotesCSV()"><span>⬇</span><span>تحميل CSV</span></button>
+  </div>
   <div id="notes-list"></div>
 </div>
 
@@ -338,7 +342,11 @@ option{background:var(--s2);}
     <button class="rp-btn"    data-rt="yearly"    onclick="setRepType(this,'yearly')">سنوي</button>
   </div>
   <div id="rep-period-sel"></div>
-  <button class="export-btn" onclick="exportReport()"><span>📋</span><span>نسخ التقرير</span></button>
+  <div style="display:flex;gap:6px;margin-bottom:10px;">
+    <button class="export-btn" style="flex:1;margin-bottom:0;" onclick="exportReport()"><span>📋</span><span>نسخ التقرير</span></button>
+    <button class="export-btn" style="flex:1;margin-bottom:0;" onclick="copyReportForExcel()"><span>📊</span><span>نسخ جدول Excel</span></button>
+    <button class="export-btn" style="flex:1;margin-bottom:0;" onclick="downloadReportCSV()"><span>⬇</span><span>تحميل CSV</span></button>
+  </div>
   <div id="rep-content"></div>
 </div>
 
@@ -888,6 +896,132 @@ function importJSON(e){
     }catch(err){ toast('⚠️ خطأ في قراءة الملف'); }
   };
   reader.readAsText(file); e.target.value='';
+}
+
+/* ══════════════════════════════════════════
+   EXCEL / CSV EXPORT
+══════════════════════════════════════════ */
+function getFilteredNotes(){
+  let notes=[...ST.notes];
+  const mf=document.getElementById('fn-member')?.value;
+  const pf=document.getElementById('fn-period')?.value;
+  const mof=document.getElementById('fn-month')?.value;
+  if(mf) notes=notes.filter(n=>n.member===mf);
+  if(pf) notes=notes.filter(n=>n.period===pf);
+  if(mof) notes=notes.filter(n=>n.monthKey===mof);
+  return notes;
+}
+
+function notesToRows(notes){
+  const pm={daily:'يومي',weekly:'أسبوعي',monthly:'شهري'};
+  const tm={pos:'إيجابي',neg:'يحتاج تحسين',neu:'ملاحظة'};
+  const headers=['العضو','الوظيفة','التاريخ','الفترة','المعيار','النجوم','النوع','الملاحظة','الشهر'];
+  const roleLabels={mod:'مودريشن',design:'جرافيك',video:'فيديو'};
+  const rows=notes.map(n=>{
+    const mem=getMember(n.member);
+    const role=mem?mem.role:(n.role||'mod');
+    return [
+      n.member,
+      roleLabels[role]||role,
+      n.date?new Date(n.date).toLocaleDateString('ar-EG'):'',
+      pm[n.period]||n.period||'',
+      n.critLabel||'',
+      n.stars||0,
+      tm[n.type]||n.type||'',
+      n.text||'',
+      n.monthKey||''
+    ];
+  });
+  return {headers, rows};
+}
+
+function reportToRows(){
+  const roleLabels={mod:'مودريشن',design:'جرافيك',video:'فيديو'};
+  const headers=['العضو','الوظيفة','عدد الملاحظات','متوسط التقييم','إيجابي','تحسين','ملاحظة'];
+  const critsAll=new Set();
+  const memberData=ST.members.map(m=>{
+    const allNotes=filterByPeriod(ST.notes.filter(n=>n.member===m.name));
+    const scored=allNotes.filter(n=>n.stars>0);
+    const score=avgStars(scored);
+    const crits=getRoleCriteria(m.role);
+    const critScores={};
+    crits.forEach(c=>{
+      const cn=scored.filter(n=>n.critId===c.id);
+      critScores[c.label]=cn.length?avgStars(cn):0;
+      critsAll.add(c.label);
+    });
+    return {
+      name:m.name,
+      role:roleLabels[m.role]||m.role,
+      total:allNotes.length,
+      score,
+      pos:allNotes.filter(n=>n.type==='pos').length,
+      neg:allNotes.filter(n=>n.type==='neg').length,
+      neu:allNotes.filter(n=>n.type==='neu').length,
+      critScores
+    };
+  }).sort((a,b)=>b.score-a.score);
+  const critHeaders=[...critsAll];
+  const fullHeaders=[...headers,...critHeaders];
+  const rows=memberData.map(d=>[
+    d.name, d.role, d.total, d.score||'—', d.pos, d.neg, d.neu,
+    ...critHeaders.map(c=>d.critScores[c]||'—')
+  ]);
+  return {headers:fullHeaders, rows};
+}
+
+function rowsToTSV(headers, rows){
+  return [headers.join('\t'), ...rows.map(r=>r.join('\t'))].join('\n');
+}
+
+function rowsToCSV(headers, rows){
+  const escape=v=>{
+    const s=String(v==null?'':v);
+    return s.includes(',')||s.includes('"')||s.includes('\n')?'"'+s.replace(/"/g,'""')+'"':s;
+  };
+  return '\uFEFF'+[headers.map(escape).join(','), ...rows.map(r=>r.map(escape).join(','))].join('\n');
+}
+
+function downloadFile(content, filename, type){
+  const blob=new Blob([content],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=filename;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function copyNotesForExcel(){
+  const notes=getFilteredNotes();
+  if(!notes.length){ toast('⚠️ لا توجد ملاحظات للنسخ'); return; }
+  const {headers,rows}=notesToRows(notes);
+  const tsv=rowsToTSV(headers,rows);
+  navigator.clipboard.writeText(tsv).then(()=>toast('✓ تم النسخ — الصقه في Excel')).catch(()=>toast('⚠️ تعذر النسخ'));
+}
+
+function downloadNotesCSV(){
+  const notes=getFilteredNotes();
+  if(!notes.length){ toast('⚠️ لا توجد ملاحظات'); return; }
+  const {headers,rows}=notesToRows(notes);
+  const csv=rowsToCSV(headers,rows);
+  const date=new Date().toISOString().slice(0,10);
+  downloadFile(csv, `ملاحظات-${date}.csv`, 'text/csv;charset=utf-8');
+  toast('✓ تم التحميل');
+}
+
+function copyReportForExcel(){
+  const {headers,rows}=reportToRows();
+  if(!rows.length){ toast('⚠️ لا توجد بيانات'); return; }
+  const tsv=rowsToTSV(headers,rows);
+  navigator.clipboard.writeText(tsv).then(()=>toast('✓ تم النسخ — الصقه في Excel')).catch(()=>toast('⚠️ تعذر النسخ'));
+}
+
+function downloadReportCSV(){
+  const {headers,rows}=reportToRows();
+  if(!rows.length){ toast('⚠️ لا توجد بيانات'); return; }
+  const csv=rowsToCSV(headers,rows);
+  const periodLabel=sel.repType==='weekly'?sel.repPeriod:sel.repType==='monthly'?sel.repPeriod:sel.repType==='quarterly'?sel.repPeriod:'2026';
+  downloadFile(csv, `تقرير-${periodLabel}.csv`, 'text/csv;charset=utf-8');
+  toast('✓ تم التحميل');
 }
 
 /* ══════════════════════════════════════════

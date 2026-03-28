@@ -382,25 +382,6 @@ option{background:var(--s2);}
     </div>
   </div>
 
-  <div class="sec-title">Google Sheets</div>
-  <div class="card">
-    <div class="srow"><div><div class="srow-label">رابط الـ Web App</div><div class="srow-sub">بعد إعداد Apps Script</div></div></div>
-    <input class="edit-input" id="gs-url" placeholder="https://script.google.com/macros/s/..." style="margin-bottom:10px;width:100%;">
-    <div style="display:flex;gap:8px;">
-      <button class="save-btn" style="flex:1;" onclick="saveGSUrl()">حفظ الرابط ✓</button>
-      <button class="export-btn" style="flex:1;margin-bottom:0;" onclick="testGS()">اختبار الاتصال</button>
-    </div>
-    <div id="gs-status" style="margin-top:10px;font-size:12px;color:var(--t3);text-align:center;min-height:18px;"></div>
-    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);">
-      <div style="font-size:12px;color:var(--t2);margin-bottom:8px;font-weight:500;">مزامنة البيانات</div>
-      <div style="display:flex;gap:8px;">
-        <button class="export-btn" style="flex:1;margin-bottom:0;font-size:12px;" onclick="syncToSheets()">⬆ رفع للـ Sheet</button>
-        <button class="export-btn" style="flex:1;margin-bottom:0;font-size:12px;" onclick="syncFromSheets()">⬇ جلب من الـ Sheet</button>
-      </div>
-      <div style="font-size:10px;color:var(--t3);margin-top:8px;text-align:center;">آخر مزامنة: <span id="last-sync">لم تتم بعد</span></div>
-    </div>
-  </div>
-
   <div class="sec-title" style="color:var(--red);opacity:0.7;">خطر</div>
   <div class="card" style="border-color:rgba(192,64,64,0.2);">
     <button class="danger-btn" onclick="clearAll()">مسح كل البيانات والبدء من جديد</button>
@@ -910,68 +891,8 @@ function importJSON(e){
 }
 
 /* ══════════════════════════════════════════
-   GOOGLE SHEETS
-══════════════════════════════════════════ */
-function getGSUrl(){ const url=localStorage.getItem('miq_gs_url')||document.getElementById('gs-url').value.trim(); if(document.getElementById('gs-url')) document.getElementById('gs-url').value=url; return url; }
-function saveGSUrl(){ const url=document.getElementById('gs-url').value.trim(); if(!url){toast('⚠️ أدخل الرابط أولاً');return;} localStorage.setItem('miq_gs_url',url); toast('✓ تم حفظ الرابط'); }
-function setGSStatus(msg,color='var(--t2)'){ const el=document.getElementById('gs-status'); if(el){ el.textContent=msg; el.style.color=color; } }
-
-async function testGS(){
-  const url=getGSUrl(); if(!url){toast('⚠️ أدخل الرابط');return;}
-  setGSStatus('جاري الاختبار…');
-  try{ const res=await fetch(url+'?action=ping',{redirect:'follow'}); const txt=await res.text();
-    if(txt.includes('pong')||res.ok){ setGSStatus('✓ الاتصال ناجح','var(--sage2)'); toast('✓ الاتصال ناجح'); }
-    else setGSStatus('⚠️ رد غير متوقع','var(--amber)');
-  }catch(err){ setGSStatus('✗ تعذر الاتصال','var(--red)'); }
-}
-
-async function syncToSheets(){
-  const url=getGSUrl(); if(!url){toast('⚠️ أدخل الرابط');return;}
-  setGSStatus('جاري الرفع…','var(--gold2)');
-  try{
-    const payload=JSON.stringify({action:'sync',data:ST});
-    const res=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:payload});
-    const txt=await res.text();
-    let result;
-    try{ result=JSON.parse(txt); }catch(e){ setGSStatus('✗ رد غير متوقع','var(--red)'); return; }
-    if(result.success){
-      const now=new Date().toLocaleString('ar-EG');
-      localStorage.setItem('miq_last_sync',now);
-      const el=document.getElementById('last-sync'); if(el) el.textContent=now;
-      setGSStatus('✓ تم الرفع — '+(result.count||0)+' ملاحظة','var(--sage2)');
-      toast('✓ تمت المزامنة');
-    } else {
-      setGSStatus('✗ '+(result.error||'خطأ'),'var(--red)');
-    }
-  }catch(err){ setGSStatus('✗ '+err.message,'var(--red)'); }
-}
-
-async function syncFromSheets(){
-  const url=getGSUrl(); if(!url){toast('⚠️ أدخل الرابط');return;}
-  setGSStatus('جاري الجلب…');
-  try{
-    const res=await fetch(url+'?action=get',{redirect:'follow'});
-    const txt=await res.text(); let result;
-    try{ result=JSON.parse(txt); }catch(e){ setGSStatus('✗ رد غير متوقع','var(--red)'); return; }
-    if(result.success&&result.data){
-      const inc=result.data;
-      if(!confirm(`جلب ${inc.notes.length} ملاحظة من الـ Sheet — هل تريد المتابعة؟`)) return;
-      const ids=new Set(ST.notes.map(n=>n.id));
-      const newN=inc.notes.filter(n=>!ids.has(n.id));
-      ST.notes=[...ST.notes,...newN].sort((a,b)=>new Date(b.date)-new Date(a.date));
-      if(inc.members) inc.members.forEach(m=>{ const mn=typeof m==='string'?m:m.name; if(!ST.members.find(x=>x.name===mn)) ST.members.push(typeof m==='string'?{name:m,role:'mod'}:m); });
-      persist(); const now=new Date().toLocaleString('ar-EG'); localStorage.setItem('miq_last_sync',now);
-      const el=document.getElementById('last-sync'); if(el) el.textContent=now;
-      setGSStatus('✓ تم الجلب — '+newN.length+' ملاحظة جديدة','var(--sage2)'); toast('✓ تم الجلب'); renderRecord();
-    } else setGSStatus('⚠️ '+(result.error||'لا توجد بيانات'),'var(--amber)');
-  }catch(err){ setGSStatus('✗ '+err.message,'var(--red)'); }
-}
-
-/* ══════════════════════════════════════════
    INIT
 ══════════════════════════════════════════ */
-const _su=localStorage.getItem('miq_gs_url'); if(_su) setTimeout(()=>{ const el=document.getElementById('gs-url'); if(el) el.value=_su; },100);
-const _ls=localStorage.getItem('miq_last_sync'); if(_ls) setTimeout(()=>{ const el=document.getElementById('last-sync'); if(el) el.textContent=_ls; },100);
 renderRecord();
 </script>
 </body>

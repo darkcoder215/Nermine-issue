@@ -10,14 +10,6 @@ function doGet(e) {
     if (action === 'ping') {
       result = {success: true, message: 'pong'};
 
-    } else if (params.payload) {
-      const payload = JSON.parse(decodeURIComponent(params.payload));
-      if (payload.action === 'sync') {
-        result = handleSync(payload.data);
-      } else {
-        result = {success: false, error: 'unknown action'};
-      }
-
     } else if (action === 'get') {
       const ss = SpreadsheetApp.openById(SHEET_ID);
       const sh = ss.getSheetByName('_meta');
@@ -33,7 +25,6 @@ function doGet(e) {
     result = {success: false, error: err.toString()};
   }
 
-  // JSONP — wraps response in callback to bypass CORS
   if (callback) {
     return ContentService
       .createTextOutput(callback + '(' + JSON.stringify(result) + ')')
@@ -45,7 +36,28 @@ function doGet(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-function doPost(e) { return doGet(e); }
+function doPost(e) {
+  let result;
+  try {
+    const body = e.postData ? e.postData.contents : '';
+    if (!body) {
+      result = {success: false, error: 'empty POST body'};
+    } else {
+      const payload = JSON.parse(body);
+      if (payload.action === 'sync') {
+        result = handleSync(payload.data);
+      } else {
+        result = {success: false, error: 'unknown action: ' + (payload.action || '')};
+      }
+    }
+  } catch(err) {
+    result = {success: false, error: err.toString()};
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
 
 function handleSync(data) {
   if (!data || !data.notes) return {success: false, error: 'incomplete data'};
@@ -243,10 +255,6 @@ function getTopCriteria(notes){
   const c={};
   notes.forEach(n=>{if(n.critLabel)c[n.critLabel]=(c[n.critLabel]||0)+1;});
   return Object.entries(c).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
-}
-
-function out(obj){
-  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 
 function testWrite(){

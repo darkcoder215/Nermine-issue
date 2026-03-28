@@ -492,19 +492,27 @@ function persist(){ localStorage.setItem('miq_v4', JSON.stringify(ST)); }
 /* ══════════════════════════════════════════
    UTILS
 ══════════════════════════════════════════ */
+function esc(s){ if(!s) return ''; const d=document.createElement('div'); d.textContent=String(s); return d.innerHTML; }
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2300); }
 function getMember(name){ return ST.members.find(m=>m.name===name); }
 function getMemberColor(name){ const i=ST.members.findIndex(m=>m.name===name); return MEMBER_COLORS[Math.max(i,0)%MEMBER_COLORS.length]; }
 function initials(n){ return n.slice(0,2); }
 function toMonthKey(iso){ const d=new Date(iso); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
-function toWeekKey(iso){ const d=new Date(iso); const j=new Date(d.getFullYear(),0,1); const w=Math.ceil(((d-j)/86400000+j.getDay()+1)/7); return `${d.getFullYear()}-W${String(w).padStart(2,'0')}`; }
+function toWeekKey(iso){
+  const d=new Date(iso);
+  const tmp=new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  tmp.setDate(tmp.getDate()+3-(tmp.getDay()+6)%7);
+  const jan4=new Date(tmp.getFullYear(),0,4);
+  const w=1+Math.round(((tmp-jan4)/86400000-(3-(jan4.getDay()+6)%7))/7);
+  return `${tmp.getFullYear()}-W${String(w).padStart(2,'0')}`;
+}
 function toQuarterKey(iso){ const d=new Date(iso); return `${d.getFullYear()}-Q${Math.ceil((d.getMonth()+1)/3)}`; }
 function nowMonthKey(){ return toMonthKey(new Date().toISOString()); }
 function nowWeekKey(){ return toWeekKey(new Date().toISOString()); }
 function weekLabel(wk){ const [y,w]=wk.split('-W'); return `الأسبوع ${parseInt(w)} · ${y}`; }
 function quarterLabel(qk){ const [y,q]=qk.split('-Q'); return {1:'الربع الأول',2:'الربع الثاني',3:'الربع الثالث',4:'الربع الرابع'}[q]||qk; }
 function monthLabel(k){ const f=MONTHS_2026.find(m=>m.k===k); if(f) return f.l+' 2026'; const [y,m]=k.split('-'); return new Date(parseInt(y),parseInt(m)-1,1).toLocaleDateString('ar-EG',{month:'long',year:'numeric'}); }
-function avgStars(notes){ if(!notes.length) return 0; return Math.round(notes.reduce((a,n)=>a+n.stars,0)/notes.length*10)/10; }
+function avgStars(notes){ const scored=notes.filter(n=>n.stars>0); if(!scored.length) return 0; return Math.round(scored.reduce((a,n)=>a+n.stars,0)/scored.length*10)/10; }
 function scoreClass(s){ if(!s) return ''; if(s>=4.5) return 'hi-ex'; if(s>=3.5) return 'hi-gd'; if(s>=2.5) return 'hi-av'; return 'hi-lw'; }
 function scoreLabel(s){ if(!s) return '—'; if(s>=4.5) return 'ممتاز'; if(s>=3.5) return 'جيد'; if(s>=2.5) return 'مقبول'; return 'يحتاج تطوير'; }
 function scoreColor(s){ if(!s) return 'var(--t3)'; if(s>=4.5) return 'var(--sage2)'; if(s>=3.5) return '#7ab8d8'; if(s>=2.5) return '#e8a850'; return '#e06060'; }
@@ -613,10 +621,12 @@ function renderTeamSnap(){
     const wkN=ST.notes.filter(n=>n.member===m.name&&toWeekKey(n.date)===nowWeekKey()).length;
     const pct=score?Math.round(score/5*100):0;
     const roleInfo=ROLES[m.role]||{label:m.role,badge:'role-default'};
-    return `<div class="member-card" onclick="document.getElementById('r-member').value='${m.name}';sel.member='${m.name}';renderCriteriaForMember('${m.name}');">
-      <div class="av" style="background:${color}18;color:${color};border-color:${color}45">${initials(m.name)}</div>
+    const name=esc(m.name);
+    const roleLabel=m.role==='mod'?'مودريشن':m.role==='design'?'جرافيك':'فيديو';
+    return `<div class="member-card" data-member="${name}">
+      <div class="av" style="background:${color}18;color:${color};border-color:${color}45">${esc(initials(m.name))}</div>
       <div class="mi">
-        <div class="mi-name">${m.name} <span class="role-badge ${roleInfo.badge||'role-default'}">${m.role==='mod'?'مودريشن':m.role==='design'?'جرافيك':'فيديو'}</span></div>
+        <div class="mi-name">${name} <span class="role-badge ${roleInfo.badge||'role-default'}">${roleLabel}</span></div>
         <div class="mi-sub">${notes.length} ملاحظة شهرية · ${wkN} هذا الأسبوع</div>
       </div>
       <div class="prog-wrap">
@@ -630,6 +640,14 @@ function renderTeamSnap(){
       </div>
     </div>`;
   }).join('');
+  el.querySelectorAll('.member-card[data-member]').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const mName=card.dataset.member;
+      document.getElementById('r-member').value=mName;
+      sel.member=mName;
+      renderCriteriaForMember(mName);
+    });
+  });
 }
 
 function saveNote(){
@@ -684,17 +702,24 @@ function renderNotes(){
   el.innerHTML=notes.map(n=>{
     const color=getMemberColor(n.member);
     const ds=new Date(n.date).toLocaleDateString('ar-EG',{day:'2-digit',month:'short'});
-    return `<div class="note-card ${n.type}">
-      <button class="del-btn" onclick="delNote(${n.id})">×</button>
+    const stars=Math.max(0,Math.min(5,n.stars||0));
+    return `<div class="note-card ${esc(n.type)}" data-note-id="${n.id}">
+      <button class="del-btn note-del-btn">×</button>
       <div class="note-meta">
-        <div class="note-who"><div class="av" style="width:24px;height:24px;font-size:10px;background:${color}18;color:${color};border-color:${color}40;border:1px solid">${initials(n.member)}</div>${n.member} ${ti[n.type]||''}</div>
-        <div style="display:flex;align-items:center;gap:5px;"><span class="note-period-tag">${pm[n.period]||n.period}</span><span class="note-date-tag">${ds}</span></div>
+        <div class="note-who"><div class="av" style="width:24px;height:24px;font-size:10px;background:${color}18;color:${color};border-color:${color}40;border:1px solid">${esc(initials(n.member))}</div>${esc(n.member)} ${ti[n.type]||''}</div>
+        <div style="display:flex;align-items:center;gap:5px;"><span class="note-period-tag">${pm[n.period]||esc(n.period)}</span><span class="note-date-tag">${ds}</span></div>
       </div>
-      <div class="note-crit">${n.critLabel}</div>
-      <div class="note-stars">${'★'.repeat(n.stars)+'☆'.repeat(5-n.stars)}</div>
-      ${n.text?`<div class="note-text">${n.text}</div>`:''}
+      <div class="note-crit">${esc(n.critLabel)}</div>
+      <div class="note-stars">${'★'.repeat(stars)+'☆'.repeat(5-stars)}</div>
+      ${n.text?`<div class="note-text">${esc(n.text)}</div>`:''}
     </div>`;
   }).join('');
+  el.querySelectorAll('.note-del-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const id=parseInt(btn.closest('[data-note-id]').dataset.noteId);
+      delNote(id);
+    });
+  });
 }
 function delNote(id){ ST.notes=ST.notes.filter(n=>n.id!==id); persist(); renderNotes(); renderTeamSnap(); renderHeader(); toast('تم الحذف'); }
 
@@ -748,9 +773,11 @@ function buildReportCards(){
   +members.map((obj,i)=>{
     const {m,allNotes,score,critScores,crits}=obj;
     const color=getMemberColor(m.name);
+    const name=esc(m.name);
     const rank=i===0&&score>0?'🥇':i===1&&score>0?'🥈':i===2&&score>0?'🥉':'';
     const rankClass=i===0&&score>0?'rank1':i===1&&score>0?'rank2':i===2&&score>0?'rank3':'';
     const roleInfo=ROLES[m.role]||{label:m.role,badge:'role-default'};
+    const roleLabel=m.role==='mod'?'مودريشن':m.role==='design'?'جرافيك':'فيديو';
     let weeklySection='';
     if(sel.repType==='monthly'){
       const weeks=[...new Set(allNotes.map(n=>n.weekKey))].sort();
@@ -760,13 +787,13 @@ function buildReportCards(){
     const neg=allNotes.filter(n=>n.type==='neg'&&n.text).slice(0,3);
     return `<div class="report-card ${rankClass}">
       <div class="report-head">
-        <div class="av" style="width:46px;height:46px;font-size:16px;background:${color}18;color:${color};border-color:${color}45">${initials(m.name)}</div>
-        <div style="flex:1"><div class="report-name">${rank} ${m.name} <span class="role-badge ${roleInfo.badge||'role-default'}">${m.role==='mod'?'مودريشن':m.role==='design'?'جرافيك':'فيديو'}</span></div><div class="report-sub">${allNotes.length} ملاحظة <span class="hi-badge ${scoreClass(score)}">${scoreLabel(score)}</span></div></div>
+        <div class="av" style="width:46px;height:46px;font-size:16px;background:${color}18;color:${color};border-color:${color}45">${esc(initials(m.name))}</div>
+        <div style="flex:1"><div class="report-name">${rank} ${name} <span class="role-badge ${roleInfo.badge||'role-default'}">${roleLabel}</span></div><div class="report-sub">${allNotes.length} ملاحظة <span class="hi-badge ${scoreClass(score)}">${scoreLabel(score)}</span></div></div>
         <div style="text-align:center"><div class="big-score" style="color:${color}">${score||'—'}</div><div style="font-size:10px;color:var(--t3)">من 5</div></div>
       </div>
-      ${crits.map(c=>{const val=critScores[c.id];const pct=val?Math.round(val/5*100):0;return `<div class="crit-row"><div class="crit-lbl">${c.icon} ${c.label}</div><div class="crit-bar-bg"><div class="crit-bar-fill" style="width:${pct}%;background:${color}"></div></div><div class="crit-num" style="color:${pct?color:'var(--t3)'}">${val||'—'}</div></div>`;}).join('')}
+      ${crits.map(c=>{const val=critScores[c.id];const pct=val?Math.round(val/5*100):0;return `<div class="crit-row"><div class="crit-lbl">${esc(c.icon)} ${esc(c.label)}</div><div class="crit-bar-bg"><div class="crit-bar-fill" style="width:${pct}%;background:${color}"></div></div><div class="crit-num" style="color:${pct?color:'var(--t3)'}">${val||'—'}</div></div>`;}).join('')}
       ${weeklySection}
-      ${pos.length||neg.length?`<div class="notes-snap"><div class="snap-lbl">أبرز الملاحظات</div>${pos.map(n=>`<div class="snap-note pos">👍 ${n.text}</div>`).join('')}${neg.map(n=>`<div class="snap-note neg">⚠️ ${n.text}</div>`).join('')}</div>`:''}
+      ${pos.length||neg.length?`<div class="notes-snap"><div class="snap-lbl">أبرز الملاحظات</div>${pos.map(n=>`<div class="snap-note pos">👍 ${esc(n.text)}</div>`).join('')}${neg.map(n=>`<div class="snap-note neg">⚠️ ${esc(n.text)}</div>`).join('')}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -798,34 +825,43 @@ function renderSettings(){
   const mel=document.getElementById('mem-edit');
   mel.innerHTML=ST.members.map((m,i)=>`
     <div class="edit-row" id="mr-${i}">
-      <input class="edit-input" id="mi-${i}" value="${m.name}" placeholder="اسم العضو">
+      <input class="edit-input" id="mi-${i}" value="${esc(m.name)}" placeholder="اسم العضو">
       <select class="role-sel" id="mr-role-${i}">
         <option value="mod"    ${m.role==='mod'?'selected':''}>مودريشن</option>
         <option value="design" ${m.role==='design'?'selected':''}>جرافيك</option>
         <option value="video"  ${m.role==='video'?'selected':''}>فيديو</option>
       </select>
-      <button class="rm" onclick="ST.members.splice(${i},1);persist();renderSettings();">×</button>
+      <button class="rm" data-rm-member="${i}">×</button>
     </div>`).join('');
+  mel.querySelectorAll('[data-rm-member]').forEach(btn=>{
+    btn.addEventListener('click',()=>{ ST.members.splice(parseInt(btn.dataset.rmMember),1); persist(); renderSettings(); });
+  });
 
   ['mod','design','video'].forEach(role=>{
     const cel=document.getElementById(`crit-${role}-edit`);
     if(!cel) return;
     cel.innerHTML=(ST.criteria[role]||[]).map((c,i)=>`
       <div class="edit-row">
-        <input class="edit-input" id="ci-${role}-icon-${i}" value="${c.icon}" style="width:42px;text-align:center;flex:none;" placeholder="🔥">
-        <input class="edit-input" id="ci-${role}-${i}" value="${c.label}" placeholder="اسم المعيار">
-        <button class="rm" onclick="ST.criteria['${role}'].splice(${i},1);persist();renderSettings();">×</button>
+        <input class="edit-input" id="ci-${role}-icon-${i}" value="${esc(c.icon)}" style="width:42px;text-align:center;flex:none;" placeholder="🔥">
+        <input class="edit-input" id="ci-${role}-${i}" value="${esc(c.label)}" placeholder="اسم المعيار">
+        <button class="rm" data-rm-crit="${role}" data-rm-idx="${i}">×</button>
       </div>`).join('');
+    cel.querySelectorAll('[data-rm-crit]').forEach(btn=>{
+      btn.addEventListener('click',()=>{ ST.criteria[btn.dataset.rmCrit].splice(parseInt(btn.dataset.rmIdx),1); persist(); renderSettings(); });
+    });
   });
 }
 
 function addMemberRow(){ ST.members.push({name:'',role:'mod'}); persist(); renderSettings(); setTimeout(()=>document.getElementById(`mi-${ST.members.length-1}`).focus(),50); }
 function saveMembers(){
   ST.members=[];
-  document.querySelectorAll('[id^="mi-"]:not([id*="role"])').forEach((inp,i)=>{
-    const name=inp.value.trim(); if(!name) return;
-    const roleEl=document.getElementById(`mr-role-${i}`);
-    ST.members.push({name, role:roleEl?roleEl.value:'mod'});
+  const rows=document.querySelectorAll('#mem-edit .edit-row');
+  rows.forEach(row=>{
+    const inp=row.querySelector('.edit-input');
+    const roleSel=row.querySelector('.role-sel');
+    const name=inp?inp.value.trim():'';
+    if(!name) return;
+    ST.members.push({name, role:roleSel?roleSel.value:'mod'});
   });
   persist(); toast('✓ تم حفظ الفريق'); renderSettings(); renderRecord();
 }
@@ -833,9 +869,12 @@ function saveMembers(){
 function addCritRow(role){ if(!ST.criteria[role]) ST.criteria[role]=[]; ST.criteria[role].push({id:role[0]+Date.now(),icon:'⭐',label:''}); persist(); renderSettings(); }
 function saveCriteria(role){
   ST.criteria[role]=[];
-  document.querySelectorAll(`[id^="ci-${role}-"]:not([id*="icon"])`).forEach((inp,i)=>{
-    const label=inp.value.trim(); if(!label) return;
-    const iconEl=document.getElementById(`ci-${role}-icon-${i}`);
+  const rows=document.querySelectorAll(`#crit-${role}-edit .edit-row`);
+  rows.forEach((row,i)=>{
+    const inputs=row.querySelectorAll('.edit-input');
+    const iconEl=inputs[0]; const labelEl=inputs[1];
+    const label=labelEl?labelEl.value.trim():'';
+    if(!label) return;
     ST.criteria[role].push({id:role[0]+Date.now()+i, icon:iconEl?iconEl.value:'⭐', label});
   });
   persist(); toast('✓ تم حفظ معايير '+(role==='mod'?'المودريشن':role==='design'?'الجرافيك':'الفيديو')); renderSettings();
@@ -875,7 +914,7 @@ function importJSON(e){
 ══════════════════════════════════════════ */
 function getGSUrl(){ const url=localStorage.getItem('miq_gs_url')||document.getElementById('gs-url').value.trim(); if(document.getElementById('gs-url')) document.getElementById('gs-url').value=url; return url; }
 function saveGSUrl(){ const url=document.getElementById('gs-url').value.trim(); if(!url){toast('⚠️ أدخل الرابط أولاً');return;} localStorage.setItem('miq_gs_url',url); toast('✓ تم حفظ الرابط'); }
-function setGSStatus(msg,color='var(--t2)'){ const el=document.getElementById('gs-status'); if(el) el.innerHTML=`<span style="color:${color}">${msg}</span>`; }
+function setGSStatus(msg,color='var(--t2)'){ const el=document.getElementById('gs-status'); if(el){ el.textContent=msg; el.style.color=color; } }
 
 async function testGS(){
   const url=getGSUrl(); if(!url){toast('⚠️ أدخل الرابط');return;}
@@ -890,9 +929,8 @@ async function syncToSheets(){
   const url=getGSUrl(); if(!url){toast('⚠️ أدخل الرابط');return;}
   setGSStatus('جاري الرفع…','var(--gold2)');
   try{
-    const dataStr=encodeURIComponent(JSON.stringify({action:'sync',data:ST}));
-    const fullUrl=url+'?payload='+dataStr;
-    const res=await fetch(fullUrl,{redirect:'follow'});
+    const payload=JSON.stringify({action:'sync',data:ST});
+    const res=await fetch(url,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:payload});
     const txt=await res.text();
     let result;
     try{ result=JSON.parse(txt); }catch(e){ setGSStatus('✗ رد غير متوقع','var(--red)'); return; }

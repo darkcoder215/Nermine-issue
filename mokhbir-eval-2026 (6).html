@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>المخبر الاقتصادي — نظام التقييم 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #10131a;
+  --s1:       #161b24;
+  --s2:       #1c222e;
+  --s3:       #222a38;
+  --s4:       #283040;
+  --bd:       rgba(180,195,220,0.08);
+  --bd2:      rgba(180,195,220,0.14);
+  --bd3:      rgba(180,195,220,0.24);
+  --terra:    #b85840;
+  --terra2:   #cc7a60;
+  --terra-s:  rgba(184,88,64,0.14);
+  --linen:    #e4ddd4;
+  --linen2:   #ece8e0;
+  --linen-s:  rgba(228,221,212,0.07);
+  --sage:     #5a9068;
+  --sage2:    #80b08a;
+  --sage-s:   rgba(90,144,104,0.14);
+  --gold:     #907038;
+  --gold2:    #b09050;
+  --gold-s:   rgba(144,112,56,0.13);
+  --amber:    #a07038;
+  --amber-s:  rgba(160,112,56,0.13);
+  --red:      #9a4040;
+  --red-s:    rgba(154,64,64,0.14);
+  --blue:     #4878a0;
+  --blue-s:   rgba(72,120,160,0.14);
+  --text:     #d8e0ec;
+  --t2:       #8090a8;
+  --t3:       #485468;
+  --t4:       #2c3444;
+  --r:        10px;
+  --rsm:      7px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'IBM Plex Sans Arabic',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;font-size:14px;overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse at 15% 15%,rgba(184,88,64,0.04) 0%,transparent 55%),
+             radial-gradient(ellipse at 85% 85%,rgba(72,120,160,0.04) 0%,transparent 55%);
+  pointer-events:none;z-index:0;
+}
+.app{max-width:920px;margin:0 auto;padding-bottom:76px;position:relative;z-index:1;}
+
+/* ── HEADER ── */
+.header{
+  padding:16px 24px 12px;border-bottom:1px solid var(--bd2);
+  position:sticky;top:0;z-index:50;
+  background:rgba(26,16,8,0.96);backdrop-filter:blur(16px);
+}
+.header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.logo-text{font-size:14px;font-weight:700;color:var(--gold2);letter-spacing:0.1em;}
+.logo-sub{font-size:10px;color:var(--t3);margin-top:2px;}
+.header-date{font-size:11px;color:var(--t3);text-align:left;}
+.header-date strong{display:block;font-size:13px;color:var(--t2);font-weight:500;}
+.week-bar{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;}
+.week-bar::-webkit-scrollbar{display:none;}
+.week-chip{flex-shrink:0;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--bd2);background:var(--s2);color:var(--t2);white-space:nowrap;}
+.week-chip.active{background:var(--gold-s);border-color:var(--gold);color:var(--gold2);}
+
+/* ── NAV ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:920px;
+  background:rgba(26,16,8,0.97);backdrop-filter:blur(20px);
+  border-top:1px solid var(--bd2);display:flex;z-index:100;
+}
+.nb{flex:1;padding:10px 4px 12px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--t3);transition:color 0.15s;font-family:'IBM Plex Sans Arabic',sans-serif;}
+.nb.active{color:var(--terra2);}
+.nb-icon{font-size:19px;line-height:1;}
+.nb-lbl{font-size:10px;font-weight:500;}
+
+/* ── PAGES ── */
+.page{display:none;padding:16px 20px;}
+.page.active{display:block;}
+
+/* ── TWO-COL LAYOUT for wide screens ── */
+.two-col{display:grid;grid-template-columns:1fr 320px;gap:14px;align-items:start;}
+.two-col .full{grid-column:1/-1;}
+@media(max-width:560px){.two-col{grid-template-columns:1fr;}}
+
+/* ── SEC TITLE ── */
+.sec-title{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:0.15em;text-transform:uppercase;margin:16px 0 8px;display:flex;align-items:center;gap:8px;}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--bd);}
+
+/* ── CARD ── */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:15px;margin-bottom:10px;}
+.card-accent{border-color:rgba(200,144,42,0.3);background:linear-gradient(135deg,var(--s1),rgba(200,144,42,0.04));}
+
+/* ── FIELD ── */
+.fl{font-size:12px;color:var(--t2);margin-bottom:6px;display:block;font-weight:500;}
+.sel{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rsm);color:var(--text);font-family:'IBM Plex Sans Arabic',sans-serif;font-size:14px;appearance:none;direction:rtl;cursor:pointer;margin-bottom:10px;}
+.sel:focus{outline:none;border-color:var(--gold);}
+option{background:var(--s2);}
+
+/* ── ROLE BADGE ── */
+.role-badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;margin-right:5px;vertical-align:middle;}
+.role-mod{background:var(--terra-s);color:var(--terra2);border:1px solid rgba(192,82,42,0.3);}
+.role-design{background:var(--sage-s);color:var(--sage2);border:1px solid rgba(122,158,126,0.3);}
+.role-video{background:var(--blue-s);color:#7ab8d8;border:1px solid rgba(74,127,168,0.3);}
+.role-default{background:var(--gold-s);color:var(--gold2);border:1px solid rgba(200,144,42,0.3);}
+
+/* ── CRITERIA GRID ── */
+.crit-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
+.crit-btn{padding:10px 10px;text-align:center;background:var(--s2);border:1px solid var(--bd);border-radius:var(--rsm);cursor:pointer;font-size:11px;color:var(--t2);transition:all 0.15s;font-family:'IBM Plex Sans Arabic',sans-serif;line-height:1.4;}
+.crit-btn:hover{border-color:var(--bd3);color:var(--text);}
+.crit-btn.on{background:var(--gold-s);border-color:rgba(200,144,42,0.4);color:var(--gold2);}
+.crit-btn .ci{display:block;font-size:15px;margin-bottom:2px;}
+
+/* ── PERIOD ── */
+.period-row{display:flex;gap:6px;margin-bottom:12px;}
+.period-btn{flex:1;padding:8px 4px;text-align:center;border:1px solid var(--bd);background:var(--s2);border-radius:var(--rsm);cursor:pointer;font-size:11px;color:var(--t2);font-family:'IBM Plex Sans Arabic',sans-serif;transition:all 0.15s;}
+.period-btn.on{background:var(--s3);border-color:var(--bd3);color:var(--text);}
+
+/* ── STARS ── */
+.stars-wrap{display:flex;justify-content:center;gap:8px;margin-bottom:10px;}
+.star{font-size:30px;cursor:pointer;color:var(--t4);transition:all 0.1s;user-select:none;line-height:1;}
+.star.on{color:var(--gold2);}
+.star:hover{transform:scale(1.15);}
+.stars-label{text-align:center;font-size:11px;color:var(--t3);margin-bottom:10px;height:15px;}
+
+/* ── TYPE BTNS ── */
+.type-row{display:flex;gap:6px;margin-bottom:12px;}
+.type-btn{flex:1;padding:8px 6px;text-align:center;border:1px solid var(--bd);background:var(--s2);border-radius:var(--rsm);cursor:pointer;font-size:11px;font-family:'IBM Plex Sans Arabic',sans-serif;color:var(--t2);transition:all 0.15s;}
+.type-btn.on-pos{background:var(--sage-s);border-color:rgba(122,158,126,0.4);color:var(--sage2);}
+.type-btn.on-neg{background:var(--terra-s);border-color:rgba(192,82,42,0.4);color:var(--terra2);}
+.type-btn.on-neu{background:var(--blue-s);border-color:rgba(74,127,168,0.35);color:#7ab8d8;}
+
+/* ── TEXTAREA ── */
+.note-ta{width:100%;padding:10px 12px;min-height:68px;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rsm);color:var(--text);font-family:'IBM Plex Sans Arabic',sans-serif;font-size:13px;resize:vertical;direction:rtl;margin-bottom:10px;}
+.note-ta:focus{outline:none;border-color:var(--gold);}
+.note-ta::placeholder{color:var(--t3);}
+
+/* ── SAVE BTN ── */
+.save-btn{width:100%;padding:12px;background:#8a4a34;border:none;border-radius:var(--rsm);color:var(--linen2);font-family:'IBM Plex Sans Arabic',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity 0.15s;}
+.save-btn:hover{opacity:0.88;}
+.save-btn:active{opacity:0.75;}
+
+/* ── MEMBER CARDS ── */
+.member-card{display:flex;align-items:center;gap:12px;padding:11px 13px;background:var(--s2);border-radius:var(--rsm);margin-bottom:8px;border:1px solid var(--bd);cursor:pointer;transition:all 0.15s;max-width:320px;}
+.member-card:hover{border-color:var(--bd3);background:var(--s3);}
+.av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;border:2px solid;}
+.mi{flex:1;}
+.mi-name{font-size:14px;font-weight:600;}
+.mi-sub{font-size:11px;color:var(--t3);margin-top:2px;}
+
+/* ── PROGRESS CIRCLE ── */
+.prog-wrap{position:relative;width:50px;height:50px;flex-shrink:0;}
+.prog-wrap svg{transform:rotate(-90deg);}
+.prog-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;}
+
+/* ── NOTE CARDS ── */
+.note-card{background:var(--s2);border-radius:var(--rsm);padding:12px;margin-bottom:8px;border:1px solid var(--bd);border-right:3px solid var(--bd2);position:relative;animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+.note-card.pos{border-right-color:var(--sage);}
+.note-card.neg{border-right-color:var(--terra);}
+.note-card.neu{border-right-color:var(--blue);}
+.note-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.note-who{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;}
+.note-date-tag{font-size:10px;color:var(--t3);}
+.note-period-tag{font-size:10px;padding:2px 7px;border-radius:10px;background:var(--s3);color:var(--t2);font-weight:500;}
+.note-crit{font-size:11px;color:var(--t2);margin-bottom:3px;}
+.note-stars{font-size:12px;color:var(--gold2);letter-spacing:2px;}
+.note-text{font-size:12px;color:var(--t2);margin-top:4px;line-height:1.5;}
+.del-btn{position:absolute;top:8px;left:8px;background:none;border:none;cursor:pointer;color:var(--t3);font-size:17px;padding:2px 5px;border-radius:4px;transition:color 0.15s;line-height:1;}
+.del-btn:hover{color:var(--red);}
+
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+@media(max-width:500px){.stat-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-cell{background:var(--s2);border:1px solid var(--bd);border-radius:var(--rsm);padding:12px 10px;text-align:center;}
+.stat-val{font-size:22px;font-weight:700;line-height:1;}
+.stat-lbl{font-size:10px;color:var(--t3);margin-top:4px;font-weight:500;}
+
+/* ── REPORT ── */
+.report-card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:15px;margin-bottom:10px;position:relative;overflow:hidden;}
+.report-card::before{content:'';position:absolute;top:0;right:0;width:3px;height:100%;}
+.rank1::before{background:var(--gold2);}
+.rank2::before{background:var(--t2);}
+.rank3::before{background:var(--amber);}
+.report-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.big-score{font-size:34px;font-weight:700;line-height:1;}
+.report-name{font-size:15px;font-weight:700;}
+.report-sub{font-size:11px;color:var(--t3);margin-top:3px;}
+.crit-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.crit-lbl{font-size:11px;color:var(--t2);width:150px;flex-shrink:0;line-height:1.3;}
+.crit-bar-bg{flex:1;height:5px;background:var(--s3);border-radius:3px;overflow:hidden;}
+.crit-bar-fill{height:100%;border-radius:3px;transition:width 0.8s cubic-bezier(.4,0,.2,1);}
+.crit-num{font-size:11px;font-weight:700;width:26px;text-align:left;}
+.notes-snap{margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);}
+.snap-lbl{font-size:10px;color:var(--t3);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:7px;}
+.snap-note{font-size:11px;color:var(--t2);padding:6px 9px;background:var(--s2);border-radius:6px;margin-bottom:4px;border-right:2px solid var(--bd);line-height:1.4;}
+.snap-note.pos{border-right-color:var(--sage);}
+.snap-note.neg{border-right-color:var(--terra);}
+.week-line{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--s2);border-radius:var(--rsm);margin-bottom:5px;border:1px solid var(--bd);}
+.wl-week{font-size:11px;color:var(--t3);width:60px;flex-shrink:0;}
+.wl-bar{flex:1;height:4px;background:var(--s3);border-radius:2px;overflow:hidden;}
+.wl-fill{height:100%;border-radius:2px;}
+.wl-score{font-size:12px;font-weight:700;width:28px;text-align:left;}
+
+/* ── REPORT PERIOD ── */
+.report-period-row{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none;}
+.report-period-row::-webkit-scrollbar{display:none;}
+.rp-btn{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--bd2);background:var(--s2);color:var(--t2);cursor:pointer;transition:all 0.15s;white-space:nowrap;font-family:'IBM Plex Sans Arabic',sans-serif;}
+.rp-btn.on{background:var(--gold-s);border-color:rgba(200,144,42,0.4);color:var(--gold2);}
+.month-chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.m-chip{padding:5px 11px;border-radius:20px;font-size:11px;border:1px solid var(--bd);background:var(--s2);color:var(--t2);cursor:pointer;transition:all 0.15s;font-weight:500;}
+.m-chip.on{background:var(--gold-s);border-color:rgba(200,144,42,0.4);color:var(--gold2);}
+.m-chip.future{opacity:0.35;cursor:default;}
+
+/* ── BADGES ── */
+.hi-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;margin-right:4px;letter-spacing:0.05em;text-transform:uppercase;vertical-align:middle;}
+.hi-ex{background:var(--sage-s);color:var(--sage2);}
+.hi-gd{background:var(--blue-s);color:#7ab8d8;}
+.hi-av{background:var(--amber-s);color:#e8a850;}
+.hi-lw{background:var(--red-s);color:#e06060;}
+
+/* ── SETTINGS ── */
+.srow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd);}
+.srow:last-child{border-bottom:none;}
+.srow-label{font-size:13px;font-weight:500;}
+.srow-sub{font-size:10px;color:var(--t3);margin-top:2px;}
+.sinput{padding:7px 10px;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rsm);color:var(--text);font-family:'IBM Plex Sans Arabic',sans-serif;font-size:13px;width:140px;direction:rtl;text-align:right;}
+.sinput:focus{outline:none;border-color:var(--gold);}
+.edit-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
+.edit-input{flex:1;padding:8px 10px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--rsm);color:var(--text);font-family:'IBM Plex Sans Arabic',sans-serif;font-size:13px;}
+.edit-input:focus{outline:none;border-color:var(--gold);}
+.role-sel{width:130px;flex-shrink:0;padding:8px 8px;background:var(--s2);border:1px solid var(--bd);border-radius:var(--rsm);color:var(--text);font-family:'IBM Plex Sans Arabic',sans-serif;font-size:12px;appearance:none;direction:rtl;}
+.role-sel:focus{outline:none;border-color:var(--gold);}
+.rm{background:none;border:none;cursor:pointer;color:var(--t3);font-size:18px;padding:0 4px;transition:color 0.15s;}
+.rm:hover{color:var(--red);}
+.add-btn{width:100%;padding:9px;margin-top:6px;background:none;border:1px dashed var(--bd2);border-radius:var(--rsm);color:var(--t2);font-family:'IBM Plex Sans Arabic',sans-serif;font-size:12px;cursor:pointer;transition:all 0.15s;}
+.add-btn:hover{border-color:var(--gold);color:var(--gold2);}
+.danger-btn{width:100%;padding:11px;background:var(--red-s);border:1px solid rgba(192,64,64,0.3);border-radius:var(--rsm);color:#e06060;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px;}
+.export-btn{width:100%;padding:10px;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--rsm);color:var(--t2);font-family:'IBM Plex Sans Arabic',sans-serif;font-size:13px;cursor:pointer;margin-bottom:10px;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.export-btn:hover{border-color:var(--gold);color:var(--gold2);}
+.filters{display:flex;gap:6px;margin-bottom:12px;}
+.filters .sel{margin-bottom:0;flex:1;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--s3);border:1px solid var(--bd3);border-radius:var(--rsm);padding:9px 16px;font-size:12px;color:var(--text);opacity:0;pointer-events:none;transition:all 0.22s;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--t4);border-radius:2px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="header">
+  <div class="header-top">
+    <div><div class="logo-text">المخبر الاقتصادي</div><div class="logo-sub">نظام تقييم فريق السوشيال ميديا · 2026</div></div>
+    <div class="header-date" id="hd"></div>
+  </div>
+  <div class="week-bar" id="week-bar"></div>
+</div>
+
+<!-- RECORD -->
+<div class="page active" id="pg-rec">
+  <div class="two-col">
+    <div>
+      <div class="sec-title">تسجيل ملاحظة</div>
+      <div class="card card-accent">
+        <label class="fl">عضو الفريق</label>
+        <select class="sel" id="r-member" onchange="onMemberChange()"></select>
+        <label class="fl">الفترة الزمنية</label>
+        <div class="period-row" id="r-period">
+          <button class="period-btn" data-p="daily">يومي</button>
+          <button class="period-btn" data-p="weekly">أسبوعي</button>
+          <button class="period-btn" data-p="monthly">شهري</button>
+        </div>
+        <label class="fl">معيار التقييم</label>
+        <div class="crit-grid" id="r-crit"></div>
+        <label class="fl" style="text-align:center;display:block;margin-bottom:8px;">التقييم</label>
+        <div class="stars-wrap" id="r-stars">
+          <span class="star" data-v="5">★</span>
+          <span class="star" data-v="4">★</span>
+          <span class="star" data-v="3">★</span>
+          <span class="star" data-v="2">★</span>
+          <span class="star" data-v="1">★</span>
+        </div>
+        <div class="stars-label" id="stars-hint"></div>
+        <label class="fl">نوع الملاحظة</label>
+        <div class="type-row">
+          <button class="type-btn" data-t="pos">👍 إيجابي</button>
+          <button class="type-btn" data-t="neg">⚠️ تحسين</button>
+          <button class="type-btn" data-t="neu">📌 ملاحظة</button>
+        </div>
+        <label class="fl">تفاصيل (اختياري)</label>
+        <textarea class="note-ta" id="r-text" placeholder="صِف اللي لاحظته…"></textarea>
+        <button class="save-btn" onclick="saveNote()">حفظ ✓</button>
+      </div>
+    </div>
+    <div>
+      <div class="sec-title">الفريق — هذا الشهر</div>
+      <div id="team-snap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTES -->
+<div class="page" id="pg-notes">
+  <div class="filters">
+    <select class="sel" id="fn-member" onchange="renderNotes()"></select>
+    <select class="sel" id="fn-period" onchange="renderNotes()" style="max-width:110px;">
+      <option value="">كل الفترات</option>
+      <option value="daily">يومي</option>
+      <option value="weekly">أسبوعي</option>
+      <option value="monthly">شهري</option>
+    </select>
+    <select class="sel" id="fn-month" onchange="renderNotes()" style="max-width:120px;"></select>
+  </div>
+  <div id="notes-list"></div>
+</div>
+
+<!-- REPORT -->
+<div class="page" id="pg-rep">
+  <div class="sec-title">نوع التقرير</div>
+  <div class="report-period-row">
+    <button class="rp-btn on" data-rt="weekly"    onclick="setRepType(this,'weekly')">أسبوعي</button>
+    <button class="rp-btn"    data-rt="monthly"   onclick="setRepType(this,'monthly')">شهري</button>
+    <button class="rp-btn"    data-rt="quarterly" onclick="setRepType(this,'quarterly')">ربع سنوي</button>
+    <button class="rp-btn"    data-rt="yearly"    onclick="setRepType(this,'yearly')">سنوي</button>
+  </div>
+  <div id="rep-period-sel"></div>
+  <button class="export-btn" onclick="exportReport()"><span>📋</span><span>نسخ التقرير</span></button>
+  <div id="rep-content"></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="pg-set">
+  <div class="sec-title">الفريق والوظائف</div>
+  <div class="card">
+    <div style="font-size:11px;color:var(--t3);margin-bottom:10px;">لكل عضو اختار وظيفته عشان تظهرله المعايير المناسبة</div>
+    <div id="mem-edit"></div>
+    <button class="add-btn" onclick="addMemberRow()">+ إضافة عضو جديد</button>
+    <button class="save-btn" style="margin-top:10px;" onclick="saveMembers()">حفظ الفريق ✓</button>
+  </div>
+
+  <div class="sec-title">معايير المودريشن / Community Manager</div>
+  <div class="card"><div id="crit-mod-edit"></div><button class="add-btn" onclick="addCritRow('mod')">+ إضافة معيار</button><button class="save-btn" style="margin-top:10px;" onclick="saveCriteria('mod')">حفظ ✓</button></div>
+
+  <div class="sec-title">معايير الجرافيك / Graphic Designer</div>
+  <div class="card"><div id="crit-design-edit"></div><button class="add-btn" onclick="addCritRow('design')">+ إضافة معيار</button><button class="save-btn" style="margin-top:10px;" onclick="saveCriteria('design')">حفظ ✓</button></div>
+
+  <div class="sec-title">معايير الفيديو / Video Editor</div>
+  <div class="card"><div id="crit-video-edit"></div><button class="add-btn" onclick="addCritRow('video')">+ إضافة معيار</button><button class="save-btn" style="margin-top:10px;" onclick="saveCriteria('video')">حفظ ✓</button></div>
+
+  <div class="sec-title">إعدادات عامة</div>
+  <div class="card">
+    <div class="srow">
+      <div><div class="srow-label">اسم الفريق</div></div>
+      <input class="sinput" id="si-tname">
+    </div>
+    <button class="save-btn" style="margin-top:12px;" onclick="saveGeneral()">حفظ ✓</button>
+  </div>
+
+  <div class="sec-title">النسخ الاحتياطي</div>
+  <div class="card">
+    <div class="srow" style="border-bottom:none;padding-bottom:6px;">
+      <div><div class="srow-label">تصدير JSON</div><div class="srow-sub">ملف على جهازك</div></div>
+      <button class="export-btn" style="width:auto;margin-bottom:0;padding:7px 14px;" onclick="exportJSON()">⬇ تصدير</button>
+    </div>
+    <div class="srow" style="border-bottom:none;padding-top:6px;">
+      <div><div class="srow-label">استيراد JSON</div><div class="srow-sub">استعادة من ملف</div></div>
+      <label class="export-btn" style="width:auto;margin-bottom:0;padding:7px 14px;cursor:pointer;">⬆ استيراد<input type="file" accept=".json" onchange="importJSON(event)" style="display:none;"></label>
+    </div>
+  </div>
+
+  <div class="sec-title">Google Sheets</div>
+  <div class="card">
+    <div class="srow"><div><div class="srow-label">رابط الـ Web App</div><div class="srow-sub">بعد إعداد Apps Script</div></div></div>
+    <input class="edit-input" id="gs-url" placeholder="https://script.google.com/macros/s/..." style="margin-bottom:10px;width:100%;">
+    <div style="display:flex;gap:8px;">
+      <button class="save-btn" style="flex:1;" onclick="saveGSUrl()">حفظ الرابط ✓</button>
+      <button class="export-btn" style="flex:1;margin-bottom:0;" onclick="testGS()">اختبار الاتصال</button>
+    </div>
+    <div id="gs-status" style="margin-top:10px;font-size:12px;color:var(--t3);text-align:center;min-height:18px;"></div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);">
+      <div style="font-size:12px;color:var(--t2);margin-bottom:8px;font-weight:500;">مزامنة البيانات</div>
+      <div style="display:flex;gap:8px;">
+        <button class="export-btn" style="flex:1;margin-bottom:0;font-size:12px;" onclick="syncToSheets()">⬆ رفع للـ Sheet</button>
+        <button class="export-btn" style="flex:1;margin-bottom:0;font-size:12px;" onclick="syncFromSheets()">⬇ جلب من الـ Sheet</button>
+      </div>
+      <div style="font-size:10px;color:var(--t3);margin-top:8px;text-align:center;">آخر مزامنة: <span id="last-sync">لم تتم بعد</span></div>
+    </div>
+  </div>
+
+  <div class="sec-title" style="color:var(--red);opacity:0.7;">خطر</div>
+  <div class="card" style="border-color:rgba(192,64,64,0.2);">
+    <button class="danger-btn" onclick="clearAll()">مسح كل البيانات والبدء من جديد</button>
+  </div>
+</div>
+
+</div>
+
+<div class="bottom-nav">
+  <button class="nb active" onclick="switchPage(this,'rec')"><span class="nb-icon">✏️</span><span class="nb-lbl">تسجيل</span></button>
+  <button class="nb" onclick="switchPage(this,'notes')"><span class="nb-icon">🗒️</span><span class="nb-lbl">الملاحظات</span></button>
+  <button class="nb" onclick="switchPage(this,'rep')"><span class="nb-icon">📊</span><span class="nb-lbl">التقرير</span></button>
+  <button class="nb" onclick="switchPage(this,'set')"><span class="nb-icon">⚙️</span><span class="nb-lbl">الإعدادات</span></button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+const ROLES = {
+  mod:    {label:'مودريشن / Community Manager', badge:'role-mod'},
+  design: {label:'Graphic Designer',            badge:'role-design'},
+  video:  {label:'Video Editor',                badge:'role-video'},
+};
+
+const DEFAULT_STATE = {
+  teamName: 'المخبر الاقتصادي',
+  members: [
+    {name:'أسما', role:'mod'},
+    {name:'هدى',  role:'mod'},
+  ],
+  criteria: {
+    mod: [
+      {id:'m1',  icon:'🕐', label:'الالتزام بالمواعيد والحضور'},
+      {id:'m2',  icon:'💬', label:'جودة الردود والتعامل مع الكومنتات'},
+      {id:'m3',  icon:'⚡', label:'سرعة الاستجابة'},
+      {id:'m4',  icon:'🤝', label:'سلوك وروح الفريق'},
+      {id:'m5',  icon:'📋', label:'المبادرة والتقارير الأسبوعية'},
+      {id:'m6',  icon:'✍️', label:'جودة النشر والالتزام بالخطة'},
+      {id:'m7',  icon:'📡', label:'متابعة الترند والسوشيال ميديا'},
+      {id:'m8',  icon:'🔍', label:'رصد ما يُقال عن المخبر'},
+      {id:'m9',  icon:'🔥', label:'إدارة الكرايسيس والتعليقات الصعبة'},
+      {id:'m10', icon:'🌱', label:'بناء الكوميونيتي والتفاعل مع الجمهور'},
+      {id:'m11', icon:'🎬', label:'جودة المقاطع'},
+    ],
+    design: [
+      {id:'d1', icon:'🕐', label:'الالتزام بمواعيد التسليم'},
+      {id:'d2', icon:'🎨', label:'جودة العمل البصري والتصميم'},
+      {id:'d3', icon:'🤝', label:'الاستجابة والتعامل ضمن الفريق'},
+      {id:'d4', icon:'💡', label:'المبادرة والتطوير'},
+      {id:'d5', icon:'🏷️', label:'الالتزام بالهوية البصرية للمخبر'},
+      {id:'d6', icon:'✨', label:'التنوع والإبداع في الأفكار'},
+      {id:'d7', icon:'🔄', label:'سرعة التعديل بعد الملاحظات'},
+      {id:'d8', icon:'📖', label:'فهم المحتوى وترجمته بصرياً'},
+    ],
+    video: [
+      {id:'v1', icon:'🕐', label:'الالتزام بمواعيد التسليم'},
+      {id:'v2', icon:'🎬', label:'جودة المونتاج والإخراج'},
+      {id:'v3', icon:'🤝', label:'الاستجابة والتعامل ضمن الفريق'},
+      {id:'v4', icon:'💡', label:'المبادرة والتطوير'},
+      {id:'v5', icon:'🏷️', label:'الالتزام بأسلوب وتون المخبر'},
+      {id:'v6', icon:'🎵', label:'جودة الصوت والموسيقى التصويرية'},
+      {id:'v7', icon:'🔄', label:'سرعة التعديل بعد الملاحظات'},
+      {id:'v8', icon:'🌀', label:'الإبداع في الـ Transitions والتأثيرات'},
+    ],
+  },
+  notes: [],
+};
+
+const MEMBER_COLORS = ['#7a9e84','#5888a8','#b07060','#6878b0','#909858','#a07850','#5898a0','#8878b0'];
+const MONTHS_2026   = [{k:'2026-03',l:'مارس'},{k:'2026-04',l:'أبريل'},{k:'2026-05',l:'مايو'},{k:'2026-06',l:'يونيو'},{k:'2026-07',l:'يوليو'},{k:'2026-08',l:'أغسطس'},{k:'2026-09',l:'سبتمبر'},{k:'2026-10',l:'أكتوبر'},{k:'2026-11',l:'نوفمبر'},{k:'2026-12',l:'ديسمبر'}];
+const STARS_LABELS  = ['','ضعيف جداً','ضعيف','مقبول','جيد','ممتاز'];
+
+let ST  = JSON.parse(localStorage.getItem('miq_v4')||'null') || JSON.parse(JSON.stringify(DEFAULT_STATE));
+let sel = {member:'', period:'', crit:'', stars:0, type:'', repType:'weekly', repPeriod:''};
+
+// migrate old string-members format
+if(ST.members.length && typeof ST.members[0]==='string'){
+  ST.members = ST.members.map(m=>({name:m,role:'mod'}));
+}
+// migrate old flat criteria
+if(ST.criteria && !ST.criteria.mod){
+  ST.criteria = JSON.parse(JSON.stringify(DEFAULT_STATE.criteria));
+}
+
+function persist(){ localStorage.setItem('miq_v4', JSON.stringify(ST)); }
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2300); }
+function getMember(name){ return ST.members.find(m=>m.name===name); }
+function getMemberColor(name){ const i=ST.members.findIndex(m=>m.name===name); return MEMBER_COLORS[Math.max(i,0)%MEMBER_COLORS.length]; }
+function initials(n){ return n.slice(0,2); }
+function toMonthKey(iso){ const d=new Date(iso); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+function toWeekKey(iso){ const d=new Date(iso); const j=new Date(d.getFullYear(),0,1); const w=Math.ceil(((d-j)/86400000+j.getDay()+1)/7); return `${d.getFullYear()}-W${String(w).padStart(2,'0')}`; }
+function toQuarterKey(iso){ const d=new Date(iso); return `${d.getFullYear()}-Q${Math.ceil((d.getMonth()+1)/3)}`; }
+function nowMonthKey(){ return toMonthKey(new Date().toISOString()); }
+function nowWeekKey(){ return toWeekKey(new Date().toISOString()); }
+function weekLabel(wk){ const [y,w]=wk.split('-W'); return `الأسبوع ${parseInt(w)} · ${y}`; }
+function quarterLabel(qk){ const [y,q]=qk.split('-Q'); return {1:'الربع الأول',2:'الربع الثاني',3:'الربع الثالث',4:'الربع الرابع'}[q]||qk; }
+function monthLabel(k){ const f=MONTHS_2026.find(m=>m.k===k); if(f) return f.l+' 2026'; const [y,m]=k.split('-'); return new Date(parseInt(y),parseInt(m)-1,1).toLocaleDateString('ar-EG',{month:'long',year:'numeric'}); }
+function avgStars(notes){ if(!notes.length) return 0; return Math.round(notes.reduce((a,n)=>a+n.stars,0)/notes.length*10)/10; }
+function scoreClass(s){ if(!s) return ''; if(s>=4.5) return 'hi-ex'; if(s>=3.5) return 'hi-gd'; if(s>=2.5) return 'hi-av'; return 'hi-lw'; }
+function scoreLabel(s){ if(!s) return '—'; if(s>=4.5) return 'ممتاز'; if(s>=3.5) return 'جيد'; if(s>=2.5) return 'مقبول'; return 'يحتاج تطوير'; }
+function scoreColor(s){ if(!s) return 'var(--t3)'; if(s>=4.5) return 'var(--sage2)'; if(s>=3.5) return '#7ab8d8'; if(s>=2.5) return '#e8a850'; return '#e06060'; }
+function getRoleCriteria(role){ return ST.criteria[role] || ST.criteria.mod || []; }
+
+/* ══════════════════════════════════════════
+   NAV
+══════════════════════════════════════════ */
+function switchPage(btn, page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pg-'+page).classList.add('active');
+  btn.classList.add('active');
+  if(page==='rec')   renderRecord();
+  if(page==='notes') renderNotes();
+  if(page==='rep')   renderReport();
+  if(page==='set')   renderSettings();
+}
+
+/* ══════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════ */
+function renderHeader(){
+  const d=new Date();
+  document.getElementById('hd').innerHTML=`<strong>${d.toLocaleDateString('ar-EG',{weekday:'short',day:'numeric',month:'short'})}</strong>${toWeekKey(d.toISOString()).replace('W','أسبوع ').replace('-',' ')}`;
+  const wb=document.getElementById('week-bar');
+  const cmk=nowMonthKey(); const cwk=nowWeekKey();
+  wb.innerHTML='';
+  const chips=[
+    {t:monthLabel(cmk), a:true},
+    {t:ST.notes.filter(n=>toMonthKey(n.date)===cmk).length+' ملاحظة هذا الشهر', a:false},
+    {t:ST.notes.filter(n=>toWeekKey(n.date)===cwk).length+' هذا الأسبوع', a:false},
+  ];
+  chips.forEach(c=>{ const el=document.createElement('div'); el.className='week-chip'+(c.a?' active':''); el.textContent=c.t; wb.appendChild(el); });
+}
+
+/* ══════════════════════════════════════════
+   RECORD PAGE
+══════════════════════════════════════════ */
+function renderRecord(){
+  renderHeader();
+  const ms=document.getElementById('r-member');
+  const cv=ms.value||sel.member;
+  ms.innerHTML='<option value="">-- اختار --</option>';
+  ST.members.forEach(m=>{
+    const o=document.createElement('option'); o.value=m.name;
+    const roleInfo=ROLES[m.role]||{label:m.role};
+    o.textContent=m.name+' — '+(m.role==='mod'?'مودريشن':m.role==='design'?'جرافيك':'فيديو');
+    ms.appendChild(o);
+  });
+  if(cv&&ST.members.find(m=>m.name===cv)) ms.value=cv;
+
+  document.querySelectorAll('#r-period .period-btn').forEach(b=>{
+    b.classList.toggle('on',b.dataset.p===sel.period);
+    b.onclick=()=>{ sel.period=b.dataset.p; document.querySelectorAll('#r-period .period-btn').forEach(x=>x.classList.remove('on')); b.classList.add('on'); };
+  });
+
+  renderCriteriaForMember(sel.member);
+  renderStars();
+
+  document.querySelectorAll('.type-btn').forEach(b=>{
+    b.className='type-btn'+(sel.type===b.dataset.t?' on-'+b.dataset.t:'');
+    b.onclick=()=>{ sel.type=b.dataset.t; document.querySelectorAll('.type-btn').forEach(x=>x.className='type-btn'+(sel.type===x.dataset.t?' on-'+x.dataset.t:'')); };
+  });
+
+  renderTeamSnap();
+}
+
+function onMemberChange(){
+  sel.member=document.getElementById('r-member').value;
+  sel.crit='';
+  renderCriteriaForMember(sel.member);
+}
+
+function renderCriteriaForMember(name){
+  const member=getMember(name);
+  const role=member?member.role:'mod';
+  const crits=getRoleCriteria(role);
+  const cg=document.getElementById('r-crit');
+  cg.innerHTML='';
+  crits.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='crit-btn'+(sel.crit===c.id?' on':'');
+    b.innerHTML=`<span class="ci">${c.icon}</span>${c.label}`;
+    b.onclick=()=>{ sel.crit=c.id; document.querySelectorAll('.crit-btn').forEach(x=>x.classList.remove('on')); b.classList.add('on'); };
+    cg.appendChild(b);
+  });
+}
+
+function renderStars(){
+  document.querySelectorAll('#r-stars .star').forEach(s=>{
+    s.classList.toggle('on',parseInt(s.dataset.v)<=sel.stars);
+    s.onclick=()=>{ sel.stars=parseInt(s.dataset.v); renderStars(); document.getElementById('stars-hint').textContent=STARS_LABELS[sel.stars]||''; };
+  });
+  document.getElementById('stars-hint').textContent=STARS_LABELS[sel.stars]||'';
+}
+
+function renderTeamSnap(){
+  const el=document.getElementById('team-snap');
+  if(!ST.members.length){ el.innerHTML='<div style="text-align:center;padding:30px;color:var(--t3);font-size:13px;">لا يوجد أعضاء</div>'; return; }
+  const cmk=nowMonthKey();
+  el.innerHTML=ST.members.map(m=>{
+    const color=getMemberColor(m.name);
+    const notes=ST.notes.filter(n=>n.member===m.name&&toMonthKey(n.date)===cmk&&n.stars>0);
+    const score=avgStars(notes);
+    const wkN=ST.notes.filter(n=>n.member===m.name&&toWeekKey(n.date)===nowWeekKey()).length;
+    const pct=score?Math.round(score/5*100):0;
+    const roleInfo=ROLES[m.role]||{label:m.role,badge:'role-default'};
+    return `<div class="member-card" onclick="document.getElementById('r-member').value='${m.name}';sel.member='${m.name}';renderCriteriaForMember('${m.name}');">
+      <div class="av" style="background:${color}18;color:${color};border-color:${color}45">${initials(m.name)}</div>
+      <div class="mi">
+        <div class="mi-name">${m.name} <span class="role-badge ${roleInfo.badge||'role-default'}">${m.role==='mod'?'مودريشن':m.role==='design'?'جرافيك':'فيديو'}</span></div>
+        <div class="mi-sub">${notes.length} ملاحظة شهرية · ${wkN} هذا الأسبوع</div>
+      </div>
+      <div class="prog-wrap">
+        <svg width="50" height="50" viewBox="0 0 50 50">
+          <circle cx="25" cy="25" r="21" fill="none" stroke="var(--s3)" stroke-width="4"/>
+          <circle cx="25" cy="25" r="21" fill="none" stroke="${color}" stroke-width="4"
+            stroke-dasharray="${2*Math.PI*21}" stroke-dashoffset="${2*Math.PI*21*(1-pct/100)}"
+            stroke-linecap="round"/>
+        </svg>
+        <div class="prog-val" style="color:${color}">${score||'—'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function saveNote(){
+  const member=document.getElementById('r-member').value;
+  if(!member){ toast('⚠️ اختار عضو الفريق'); return; }
+  if(!sel.period){ toast('⚠️ حدد الفترة الزمنية'); return; }
+  if(!sel.crit){ toast('⚠️ اختار المعيار'); return; }
+  if(!sel.stars){ toast('⚠️ حدد التقييم بالنجوم'); return; }
+  if(!sel.type){ toast('⚠️ حدد نوع الملاحظة'); return; }
+  const mem=getMember(member);
+  const role=mem?mem.role:'mod';
+  const crits=getRoleCriteria(role);
+  const crit=crits.find(c=>c.id===sel.crit);
+  const now=new Date().toISOString();
+  ST.notes.unshift({id:Date.now(),member,role,period:sel.period,critId:sel.crit,critLabel:crit?crit.label:sel.crit,stars:sel.stars,type:sel.type,text:(document.getElementById('r-text').value||'').trim(),date:now,monthKey:toMonthKey(now),weekKey:toWeekKey(now),quarterKey:toQuarterKey(now)});
+  persist();
+  const savedMember=member; const savedPeriod=sel.period;
+  sel.crit=''; sel.stars=0; sel.type='';
+  document.getElementById('r-text').value='';
+  document.querySelectorAll('.crit-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.type-btn').forEach(b=>b.className='type-btn');
+  renderStars();
+  sel.member=savedMember; sel.period=savedPeriod;
+  document.getElementById('r-member').value=savedMember;
+  document.querySelectorAll('#r-period .period-btn').forEach(b=>b.classList.toggle('on',b.dataset.p===savedPeriod));
+  renderCriteriaForMember(savedMember);
+  toast('✓ تم الحفظ — جاهز لمعيار جديد لـ '+savedMember);
+  renderTeamSnap(); renderHeader();
+}
+
+/* ══════════════════════════════════════════
+   NOTES PAGE
+══════════════════════════════════════════ */
+function renderNotes(){
+  const fm=document.getElementById('fn-member'); const cv=fm.value;
+  fm.innerHTML='<option value="">كل الفريق</option>';
+  ST.members.forEach(m=>{ const o=document.createElement('option');o.value=m.name;o.textContent=m.name;fm.appendChild(o); });
+  if(cv) fm.value=cv;
+  const fmo=document.getElementById('fn-month'); const cmo=fmo.value;
+  fmo.innerHTML='<option value="">كل الأشهر</option>';
+  [...new Set(ST.notes.map(n=>n.monthKey))].sort().reverse().forEach(k=>{ const o=document.createElement('option');o.value=k;o.textContent=monthLabel(k);fmo.appendChild(o); });
+  if(cmo) fmo.value=cmo;
+  let notes=[...ST.notes];
+  const mf=fm.value; const pf=document.getElementById('fn-period').value; const mof=fmo.value;
+  if(mf) notes=notes.filter(n=>n.member===mf);
+  if(pf) notes=notes.filter(n=>n.period===pf);
+  if(mof) notes=notes.filter(n=>n.monthKey===mof);
+  const el=document.getElementById('notes-list');
+  if(!notes.length){ el.innerHTML='<div style="text-align:center;padding:40px;color:var(--t3);font-size:13px;">📭 لا توجد ملاحظات</div>'; return; }
+  const pm={daily:'يومي',weekly:'أسبوعي',monthly:'شهري'};
+  const ti={pos:'👍',neg:'⚠️',neu:'📌'};
+  el.innerHTML=notes.map(n=>{
+    const color=getMemberColor(n.member);
+    const ds=new Date(n.date).toLocaleDateString('ar-EG',{day:'2-digit',month:'short'});
+    return `<div class="note-card ${n.type}">
+      <button class="del-btn" onclick="delNote(${n.id})">×</button>
+      <div class="note-meta">
+        <div class="note-who"><div class="av" style="width:24px;height:24px;font-size:10px;background:${color}18;color:${color};border-color:${color}40;border:1px solid">${initials(n.member)}</div>${n.member} ${ti[n.type]||''}</div>
+        <div style="display:flex;align-items:center;gap:5px;"><span class="note-period-tag">${pm[n.period]||n.period}</span><span class="note-date-tag">${ds}</span></div>
+      </div>
+      <div class="note-crit">${n.critLabel}</div>
+      <div class="note-stars">${'★'.repeat(n.stars)+'☆'.repeat(5-n.stars)}</div>
+      ${n.text?`<div class="note-text">${n.text}</div>`:''}
+    </div>`;
+  }).join('');
+}
+function delNote(id){ ST.notes=ST.notes.filter(n=>n.id!==id); persist(); renderNotes(); renderTeamSnap(); renderHeader(); toast('تم الحذف'); }
+
+/* ══════════════════════════════════════════
+   REPORT PAGE
+══════════════════════════════════════════ */
+function setRepType(btn,rt){ sel.repType=rt; sel.repPeriod=''; document.querySelectorAll('.rp-btn').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); renderReport(); }
+function setRepPeriod(p){ sel.repPeriod=p; renderReport(); }
+
+function renderReport(){
+  const psel=document.getElementById('rep-period-sel');
+  if(sel.repType==='weekly'){
+    const weeks=[...new Set(ST.notes.map(n=>n.weekKey))].sort().reverse();
+    if(!weeks.includes(nowWeekKey())) weeks.unshift(nowWeekKey());
+    if(!sel.repPeriod) sel.repPeriod=weeks[0];
+    psel.innerHTML=`<div class="month-chips">${weeks.map(k=>`<div class="m-chip${sel.repPeriod===k?' on':''}" onclick="setRepPeriod('${k}')">${weekLabel(k)}</div>`).join('')}</div>`;
+  } else if(sel.repType==='monthly'){
+    const cmk=nowMonthKey(); if(!sel.repPeriod) sel.repPeriod=cmk;
+    psel.innerHTML=`<div class="month-chips">${MONTHS_2026.map(m=>`<div class="m-chip${sel.repPeriod===m.k?' on':''}${m.k>cmk?' future':''}" ${m.k<=cmk?`onclick="setRepPeriod('${m.k}')"`:''}>${m.l}</div>`).join('')}</div>`;
+  } else if(sel.repType==='quarterly'){
+    const qs=['2026-Q1','2026-Q2','2026-Q3','2026-Q4'];
+    const cq=toQuarterKey(new Date().toISOString()); if(!sel.repPeriod) sel.repPeriod=cq;
+    psel.innerHTML=`<div class="month-chips">${qs.map(q=>`<div class="m-chip${sel.repPeriod===q?' on':''}" onclick="setRepPeriod('${q}')">${quarterLabel(q)}</div>`).join('')}</div>`;
+  } else { sel.repPeriod='2026'; psel.innerHTML=''; }
+  buildReportCards();
+}
+
+function filterByPeriod(notes){
+  if(!sel.repPeriod) return notes;
+  if(sel.repType==='weekly')    return notes.filter(n=>n.weekKey===sel.repPeriod);
+  if(sel.repType==='monthly')   return notes.filter(n=>n.monthKey===sel.repPeriod);
+  if(sel.repType==='quarterly') return notes.filter(n=>n.quarterKey===sel.repPeriod);
+  if(sel.repType==='yearly')    return notes.filter(n=>n.date.startsWith('2026'));
+  return notes;
+}
+
+function buildReportCards(){
+  const el=document.getElementById('rep-content');
+  const members=ST.members.map(m=>{
+    const allNotes=filterByPeriod(ST.notes.filter(n=>n.member===m.name));
+    const scored=allNotes.filter(n=>n.stars>0);
+    const score=avgStars(scored);
+    const crits=getRoleCriteria(m.role);
+    const critScores={};
+    crits.forEach(c=>{ const cn=scored.filter(n=>n.critId===c.id); critScores[c.id]=cn.length?avgStars(cn):0; });
+    return {m,allNotes,scored,score,critScores,crits};
+  }).sort((a,b)=>b.score-a.score);
+  const total=members.reduce((a,x)=>a+x.allNotes.length,0);
+  const teamAvg=members.filter(x=>x.score>0).length?Math.round(members.filter(x=>x.score>0).reduce((a,x)=>a+x.score,0)/members.filter(x=>x.score>0).length*10)/10:0;
+  el.innerHTML=`<div class="stat-grid"><div class="stat-cell"><div class="stat-val" style="color:var(--gold2)">${total}</div><div class="stat-lbl">إجمالي الملاحظات</div></div><div class="stat-cell"><div class="stat-val" style="color:${scoreColor(teamAvg)}">${teamAvg||'—'}</div><div class="stat-lbl">متوسط الفريق</div></div><div class="stat-cell"><div class="stat-val" style="color:var(--sage2)">${members.filter(x=>x.score>=4).length}</div><div class="stat-lbl">أداء ممتاز/جيد</div></div><div class="stat-cell"><div class="stat-val" style="color:var(--terra2)">${members.filter(x=>x.score>0&&x.score<3).length}</div><div class="stat-lbl">يحتاج تطوير</div></div></div>`
+  +members.map((obj,i)=>{
+    const {m,allNotes,score,critScores,crits}=obj;
+    const color=getMemberColor(m.name);
+    const rank=i===0&&score>0?'🥇':i===1&&score>0?'🥈':i===2&&score>0?'🥉':'';
+    const rankClass=i===0&&score>0?'rank1':i===1&&score>0?'rank2':i===2&&score>0?'rank3':'';
+    const roleInfo=ROLES[m.role]||{label:m.role,badge:'role-default'};
+    let weeklySection='';
+    if(sel.repType==='monthly'){
+      const weeks=[...new Set(allNotes.map(n=>n.weekKey))].sort();
+      if(weeks.length) weeklySection=`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);"><div class="snap-lbl" style="margin-bottom:8px;">الأداء الأسبوعي</div>${weeks.map(wk=>{const wn=allNotes.filter(n=>n.weekKey===wk&&n.stars>0);const ws=avgStars(wn);const pct=ws?Math.round(ws/5*100):0;return `<div class="week-line"><div class="wl-week">${weekLabel(wk).split('·')[0]}</div><div class="wl-bar"><div class="wl-fill" style="width:${pct}%;background:${color}"></div></div><div class="wl-score" style="color:${color}">${ws||'—'}</div></div>`;}).join('')}</div>`;
+    }
+    const pos=allNotes.filter(n=>n.type==='pos'&&n.text).slice(0,3);
+    const neg=allNotes.filter(n=>n.type==='neg'&&n.text).slice(0,3);
+    return `<div class="report-card ${rankClass}">
+      <div class="report-head">
+        <div class="av" style="width:46px;height:46px;font-size:16px;background:${color}18;color:${color};border-color:${color}45">${initials(m.name)}</div>
+        <div style="flex:1"><div class="report-name">${rank} ${m.name} <span class="role-badge ${roleInfo.badge||'role-default'}">${m.role==='mod'?'مودريشن':m.role==='design'?'جرافيك':'فيديو'}</span></div><div class="report-sub">${allNotes.length} ملاحظة <span class="hi-badge ${scoreClass(score)}">${scoreLabel(score)}</span></div></div>
+        <div style="text-align:center"><div class="big-score" style="color:${color}">${score||'—'}</div><div style="font-size:10px;color:var(--t3)">من 5</div></div>
+      </div>
+      ${crits.map(c=>{const val=critScores[c.id];const pct=val?Math.round(val/5*100):0;return `<div class="crit-row"><div class="crit-lbl">${c.icon} ${c.label}</div><div class="crit-bar-bg"><div class="crit-bar-fill" style="width:${pct}%;background:${color}"></div></div><div class="crit-num" style="color:${pct?color:'var(--t3)'}">${val||'—'}</div></div>`;}).join('')}
+      ${weeklySection}
+      ${pos.length||neg.length?`<div class="notes-snap"><div class="snap-lbl">أبرز الملاحظات</div>${pos.map(n=>`<div class="snap-note pos">👍 ${n.text}</div>`).join('')}${neg.map(n=>`<div class="snap-note neg">⚠️ ${n.text}</div>`).join('')}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function exportReport(){
+  const periodLabel=sel.repType==='weekly'?weekLabel(sel.repPeriod):sel.repType==='monthly'?monthLabel(sel.repPeriod):sel.repType==='quarterly'?quarterLabel(sel.repPeriod):'2026';
+  let txt=`📊 تقرير ${ST.teamName} — ${periodLabel}\n${'═'.repeat(38)}\n\n`;
+  ST.members.forEach((m,i)=>{
+    const allNotes=filterByPeriod(ST.notes.filter(n=>n.member===m.name));
+    const score=avgStars(allNotes.filter(n=>n.stars>0));
+    const rank=i===0&&score>0?'🥇':i===1&&score>0?'🥈':i===2&&score>0?'🥉':'';
+    txt+=`${rank} ${m.name} — ${score||'لم يُقيَّم'}/5 (${scoreLabel(score)})\n`;
+    txt+=`   ملاحظات: ${allNotes.length}\n`;
+    getRoleCriteria(m.role).forEach(c=>{ const cn=allNotes.filter(n=>n.critId===c.id&&n.stars>0); const cs=cn.length?avgStars(cn):0; if(cs) txt+=`   ${c.icon} ${c.label}: ${cs}/5\n`; });
+    const pos=allNotes.filter(n=>n.type==='pos'&&n.text); const neg=allNotes.filter(n=>n.type==='neg'&&n.text);
+    if(pos.length) txt+=`   ✅ ${pos.map(n=>n.text).join(' | ')}\n`;
+    if(neg.length) txt+=`   📈 ${neg.map(n=>n.text).join(' | ')}\n`;
+    txt+='\n';
+  });
+  txt+=`—\nالمخبر الاقتصادي · ${new Date().toLocaleDateString('ar-EG')}`;
+  navigator.clipboard.writeText(txt).then(()=>toast('✓ تم نسخ التقرير')).catch(()=>toast('تعذر النسخ'));
+}
+
+/* ══════════════════════════════════════════
+   SETTINGS
+══════════════════════════════════════════ */
+function renderSettings(){
+  document.getElementById('si-tname').value=ST.teamName;
+  const mel=document.getElementById('mem-edit');
+  mel.innerHTML=ST.members.map((m,i)=>`
+    <div class="edit-row" id="mr-${i}">
+      <input class="edit-input" id="mi-${i}" value="${m.name}" placeholder="اسم العضو">
+      <select class="role-sel" id="mr-role-${i}">
+        <option value="mod"    ${m.role==='mod'?'selected':''}>مودريشن</option>
+        <option value="design" ${m.role==='design'?'selected':''}>جرافيك</option>
+        <option value="video"  ${m.role==='video'?'selected':''}>فيديو</option>
+      </select>
+      <button class="rm" onclick="ST.members.splice(${i},1);persist();renderSettings();">×</button>
+    </div>`).join('');
+
+  ['mod','design','video'].forEach(role=>{
+    const cel=document.getElementById(`crit-${role}-edit`);
+    if(!cel) return;
+    cel.innerHTML=(ST.criteria[role]||[]).map((c,i)=>`
+      <div class="edit-row">
+        <input class="edit-input" id="ci-${role}-icon-${i}" value="${c.icon}" style="width:42px;text-align:center;flex:none;" placeholder="🔥">
+        <input class="edit-input" id="ci-${role}-${i}" value="${c.label}" placeholder="اسم المعيار">
+        <button class="rm" onclick="ST.criteria['${role}'].splice(${i},1);persist();renderSettings();">×</button>
+      </div>`).join('');
+  });
+}
+
+function addMemberRow(){ ST.members.push({name:'',role:'mod'}); persist(); renderSettings(); setTimeout(()=>document.getElementById(`mi-${ST.members.length-1}`).focus(),50); }
+function saveMembers(){
+  ST.members=[];
+  document.querySelectorAll('[id^="mi-"]:not([id*="role"])').forEach((inp,i)=>{
+    const name=inp.value.trim(); if(!name) return;
+    const roleEl=document.getElementById(`mr-role-${i}`);
+    ST.members.push({name, role:roleEl?roleEl.value:'mod'});
+  });
+  persist(); toast('✓ تم حفظ الفريق'); renderSettings(); renderRecord();
+}
+
+function addCritRow(role){ if(!ST.criteria[role]) ST.criteria[role]=[]; ST.criteria[role].push({id:role[0]+Date.now(),icon:'⭐',label:''}); persist(); renderSettings(); }
+function saveCriteria(role){
+  ST.criteria[role]=[];
+  document.querySelectorAll(`[id^="ci-${role}-"]:not([id*="icon"])`).forEach((inp,i)=>{
+    const label=inp.value.trim(); if(!label) return;
+    const iconEl=document.getElementById(`ci-${role}-icon-${i}`);
+    ST.criteria[role].push({id:role[0]+Date.now()+i, icon:iconEl?iconEl.value:'⭐', label});
+  });
+  persist(); toast('✓ تم حفظ معايير '+(role==='mod'?'المودريشن':role==='design'?'الجرافيك':'الفيديو')); renderSettings();
+}
+function saveGeneral(){ ST.teamName=document.getElementById('si-tname').value.trim()||'المخبر الاقتصادي'; persist(); toast('✓ تم الحفظ'); }
+function clearAll(){ if(confirm('سيتم مسح كل البيانات. هل أنت متأكد؟')){ localStorage.removeItem('miq_v4'); location.reload(); } }
+
+/* ══════════════════════════════════════════
+   BACKUP
+══════════════════════════════════════════ */
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(ST,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`mokhbir-eval-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url); toast('✓ تم التصدير');
+}
+function importJSON(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=(ev)=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.members||!data.notes||!data.criteria) throw new Error('ملف غير صحيح');
+      if(!confirm(`استيراد ${data.notes.length} ملاحظة — هل تريد المتابعة؟`)) return;
+      const ids=new Set(ST.notes.map(n=>n.id));
+      ST.notes=[...ST.notes,...data.notes.filter(n=>!ids.has(n.id))].sort((a,b)=>new Date(b.date)-new Date(a.date));
+      data.members.forEach(m=>{ const mn=typeof m==='string'?m:m.name; if(!ST.members.find(x=>x.name===mn)) ST.members.push(typeof m==='string'?{name:m,role:'mod'}:m); });
+      persist(); toast('✓ تم الاستيراد'); renderRecord(); renderSettings();
+    }catch(err){ toast('⚠️ خطأ في قراءة الملف'); }
+  };
+  reader.readAsText(file); e.target.value='';
+}
+
+/* ══════════════════════════════════════════
+   GOOGLE SHEETS
+══════════════════════════════════════════ */
+function getGSUrl(){ const url=localStorage.getItem('miq_gs_url')||document.getElementById('gs-url').value.trim(); if(document.getElementById('gs-url')) document.getElementById('gs-url').value=url; return url; }
+function saveGSUrl(){ const url=document.getElementById('gs-url').value.trim(); if(!url){toast('⚠️ أدخل الرابط أولاً');return;} localStorage.setItem('miq_gs_url',url); toast('✓ تم حفظ الرابط'); }
+function setGSStatus(msg,color='var(--t2)'){ const el=document.getElementById('gs-status'); if(el) el.innerHTML=`<span style="color:${color}">${msg}</span>`; }
+
+async function testGS(){
+  const url=getGSUrl(); if(!url){toast('⚠️ أدخل الرابط');return;}
+  setGSStatus('جاري الاختبار…');
+  try{ const res=await fetch(url+'?action=ping',{redirect:'follow'}); const txt=await res.text();
+    if(txt.includes('pong')||res.ok){ setGSStatus('✓ الاتصال ناجح','var(--sage2)'); toast('✓ الاتصال ناجح'); }
+    else setGSStatus('⚠️ رد غير متوقع','var(--amber)');
+  }catch(err){ setGSStatus('✗ تعذر الاتصال','var(--red)'); }
+}
+
+async function syncToSheets(){
+  const url=getGSUrl(); if(!url){toast('⚠️ أدخل الرابط');return;}
+  setGSStatus('جاري الرفع…','var(--gold2)');
+  try{
+    const dataStr=encodeURIComponent(JSON.stringify({action:'sync',data:ST}));
+    const fullUrl=url+'?payload='+dataStr;
+    const res=await fetch(fullUrl,{redirect:'follow'});
+    const txt=await res.text();
+    let result;
+    try{ result=JSON.parse(txt); }catch(e){ setGSStatus('✗ رد غير متوقع','var(--red)'); return; }
+    if(result.success){
+      const now=new Date().toLocaleString('ar-EG');
+      localStorage.setItem('miq_last_sync',now);
+      const el=document.getElementById('last-sync'); if(el) el.textContent=now;
+      setGSStatus('✓ تم الرفع — '+(result.count||0)+' ملاحظة','var(--sage2)');
+      toast('✓ تمت المزامنة');
+    } else {
+      setGSStatus('✗ '+(result.error||'خطأ'),'var(--red)');
+    }
+  }catch(err){ setGSStatus('✗ '+err.message,'var(--red)'); }
+}
+
+async function syncFromSheets(){
+  const url=getGSUrl(); if(!url){toast('⚠️ أدخل الرابط');return;}
+  setGSStatus('جاري الجلب…');
+  try{
+    const res=await fetch(url+'?action=get',{redirect:'follow'});
+    const txt=await res.text(); let result;
+    try{ result=JSON.parse(txt); }catch(e){ setGSStatus('✗ رد غير متوقع','var(--red)'); return; }
+    if(result.success&&result.data){
+      const inc=result.data;
+      if(!confirm(`جلب ${inc.notes.length} ملاحظة من الـ Sheet — هل تريد المتابعة؟`)) return;
+      const ids=new Set(ST.notes.map(n=>n.id));
+      const newN=inc.notes.filter(n=>!ids.has(n.id));
+      ST.notes=[...ST.notes,...newN].sort((a,b)=>new Date(b.date)-new Date(a.date));
+      if(inc.members) inc.members.forEach(m=>{ const mn=typeof m==='string'?m:m.name; if(!ST.members.find(x=>x.name===mn)) ST.members.push(typeof m==='string'?{name:m,role:'mod'}:m); });
+      persist(); const now=new Date().toLocaleString('ar-EG'); localStorage.setItem('miq_last_sync',now);
+      const el=document.getElementById('last-sync'); if(el) el.textContent=now;
+      setGSStatus('✓ تم الجلب — '+newN.length+' ملاحظة جديدة','var(--sage2)'); toast('✓ تم الجلب'); renderRecord();
+    } else setGSStatus('⚠️ '+(result.error||'لا توجد بيانات'),'var(--amber)');
+  }catch(err){ setGSStatus('✗ '+err.message,'var(--red)'); }
+}
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+const _su=localStorage.getItem('miq_gs_url'); if(_su) setTimeout(()=>{ const el=document.getElementById('gs-url'); if(el) el.value=_su; },100);
+const _ls=localStorage.getItem('miq_last_sync'); if(_ls) setTimeout(()=>{ const el=document.getElementById('last-sync'); if(el) el.textContent=_ls; },100);
+renderRecord();
+</script>
+</body>
+</html>
